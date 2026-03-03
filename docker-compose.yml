@@ -39,7 +39,7 @@ services:
     networks:
       - nextcloud-local_default
   iredmail:
-    image: iredmail/openldap:stable
+    image: iredmail/mariadb:stable
     container_name: iredmail
     hostname: mail.nof.internal
     domainname: nof.internal

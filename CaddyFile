@@ -1,0 +1,21 @@
+{
+    # This prevents Caddy from trying to reach out to Let's Encrypt 
+    # for a domain it can't possibly validate externally.
+    local_certs
+}
+
+# Nextcloud Proxy
+nof.internal {
+    tls internal
+    reverse_proxy localhost:11000
+}
+
+# iRedMail Proxy
+mail.nof.internal {
+    tls internal
+    reverse_proxy localhost:8081 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}

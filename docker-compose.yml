@@ -24,14 +24,15 @@ services:
       - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
-      - "8080:8080" # AIO Interface
-      # Port 80 removed from here so Caddy can use it
+      - "8080:8080"
+      - "80:80"     # You can keep this on port 80 now
+      - "11000:11000"
     environment:
       - APACHE_PORT=11000
       - NEXTCLOUD_DATADIR=/nextcloud-data
       - SKIP_DOMAIN_VALIDATION=true
       - TALK_PORT=3478
-      - APACHE_IP_BINDING=127.0.0.1 # Securely bind to localhost for the proxy
+      - APACHE_IP_BINDING=127.0.0.1
 
   caddy:
     image: caddy:alpine
@@ -48,7 +49,11 @@ services:
 configs:
   Caddyfile:
     content: |
-      # This handles your self-signed cert and local traffic
+      {
+        # This prevents Caddy from trying to bind to port 80
+        auto_https disable_redirects
+      }
+
       nof.internal:443 {
         tls internal
         reverse_proxy localhost:11000

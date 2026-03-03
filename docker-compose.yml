@@ -39,6 +39,32 @@ services:
       - NEXTCLOUD_STARTUP_APPS=
       # Added this to help Nextcloud understand its own URL for CLI tasks
       - NEXTCLOUD_OVERWRITECLIURL=https://nof.internal
+  iredmail:
+    image: iredmail/openldap:stable
+    container_name: iredmail
+    hostname: mail.nof.internal
+    domainname: nof.internal
+    restart: always
+    ports:
+      - "25:25"
+      - "587:587"
+      - "465:465"
+      - "143:143"
+      - "993:993"
+      - "110:110"
+      - "995:995"
+      - "127.0.0.1:8081:80" 
+    env_file:
+      - ./iredmail/iredmail-docker.conf
+    volumes:
+      - ./iredmail/data/mailboxes:/var/vmail/vmail1
+      - ./iredmail/data/ldap:/var/lib/ldap
+      - ./iredmail/data/mysql:/var/lib/mysql
+      - ./iredmail/data/clamav:/var/lib/clamav
+      - ./iredmail/data/custom:/opt/iredmail/custom
+      - ./iredmail/data/ssl:/etc/ssl
+    networks:
+      - nextcloud-local_default
 
   caddy:
     image: caddy:alpine
@@ -58,10 +84,13 @@ configs:
       {
         auto_https disable_redirects
       }
-
       nof.internal:443 {
         tls internal
         reverse_proxy localhost:11000
+      }
+      mail.nof.internal:443 {
+        tls internal
+        reverse_proxy localhost:8081
       }
 
 volumes:

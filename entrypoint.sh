@@ -13,5 +13,10 @@ if [ "$DOCKER_BUILD_DOVECOT" = "YES" ]; then
     service dovecot start
 fi
 
+if [ "$DOCKER_BUILD_NGINX" = "YES" ]; then
+    service nginx start
+fi
+
+
 # Keep the container running
 tail -f /dev/null

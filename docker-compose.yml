@@ -31,14 +31,14 @@ services:
         - source: Caddyfile
           target: /etc/caddy/Caddyfile
 
-  configs:
-    Caddyfile:
-      content: |
-        # Replace 'nof.internal' with your preferred local hostname or IP
-        nextcloud.local:443 {
-          tls internal
-          reverse_proxy localhost:11000
-        }
+configs:
+  Caddyfile:
+    content: |
+      # Replace 'nof.internal' with your preferred local hostname or IP
+      nof.internal:443 {
+        tls internal
+        reverse_proxy localhost:11000
+      }
 volumes:
   nextcloud_aio_mastercontainer:
     name: nextcloud_aio_mastercontainer

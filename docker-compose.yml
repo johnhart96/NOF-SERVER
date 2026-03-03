@@ -1,5 +1,19 @@
 name: nextcloud-local
 services:
+  bind9:
+    container_name: bind-dns
+    image: ubuntu/bind9:latest
+    environment:
+      - BIND9_USER=root
+      - TZ=Europe/London
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - ./dns/config:/etc/bind
+      - ./dns/cache:/var/cache/bind
+      - ./dns/records:/var/lib/bind
+    restart: unless-stopped
   nextcloud-aio-mastercontainer:
     image: ghcr.io/nextcloud-releases/all-in-one:latest
     init: true
@@ -19,17 +33,18 @@ services:
       - TALK_PORT=3478
       - APACHE_IP_BINDING=0.0.0.0
       # -------------------------------------
+
   caddy:
-      image: caddy:alpine
-      restart: always
-      container_name: caddy
-      volumes:
-        - caddy_data:/data
-        - caddy_config:/config
-      network_mode: "host"
-      configs:
-        - source: Caddyfile
-          target: /etc/caddy/Caddyfile
+    image: caddy:alpine
+    restart: always
+    container_name: caddy
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    network_mode: "host"
+    configs:
+      - source: Caddyfile
+        target: /etc/caddy/Caddyfile
 
 configs:
   Caddyfile:
@@ -39,6 +54,10 @@ configs:
         tls internal
         reverse_proxy localhost:11000
       }
+
 volumes:
   nextcloud_aio_mastercontainer:
     name: nextcloud_aio_mastercontainer
+  # Added missing volume definitions below:
+  caddy_data:
+  caddy_config:

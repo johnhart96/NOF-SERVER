@@ -36,7 +36,7 @@ services:
       - APACHE_IP_BINDING=127.0.0.1
       - NEXTCLOUD_DOMAIN=nof.internal
       - AIO_COMMUNITY_CONTAINERS=
-      - NEXTCLOUD_STARTUP_APPS=
+      - NEXTCLOUD_STARTUP_APPS=mail
       # Added this to help Nextcloud understand its own URL for CLI tasks
       - NEXTCLOUD_OVERWRITECLIURL=https://nof.internal
   iredmail:

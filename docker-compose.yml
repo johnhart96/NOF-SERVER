@@ -72,6 +72,7 @@ services:
     hostname: mail
     domainname: nof.internal
     restart: on-failure
+    command: tail -f /dev/null  # This forces the container to stay open
     build:
       context: .
       dockerfile: Dockerfile

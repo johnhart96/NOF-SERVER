@@ -25,13 +25,20 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
       - "8080:8080"
-      - "80:80"     # You can keep this on port 80 now
+      - "80:80"
+    extra_hosts:
+      - "nof.internal:host-gateway" # This tells the container that nof.internal is the host machine
     environment:
       - APACHE_PORT=11000
       - NEXTCLOUD_DATADIR=/nextcloud-data
       - SKIP_DOMAIN_VALIDATION=true
       - TALK_PORT=3478
       - APACHE_IP_BINDING=127.0.0.1
+      - NEXTCLOUD_DOMAIN=nof.internal
+      - AIO_COMMUNITY_CONTAINERS=
+      - NEXTCLOUD_STARTUP_APPS=
+      # Added this to help Nextcloud understand its own URL for CLI tasks
+      - NEXTCLOUD_OVERWRITECLIURL=https://nof.internal
 
   caddy:
     image: caddy:alpine
@@ -49,7 +56,6 @@ configs:
   Caddyfile:
     content: |
       {
-        # This prevents Caddy from trying to bind to port 80
         auto_https disable_redirects
       }
 

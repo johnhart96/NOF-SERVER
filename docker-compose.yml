@@ -69,11 +69,32 @@ services:
     image: caddy:alpine
     restart: always
     container_name: caddy
-    network_mode: "host" # Matches your original file
+    network_mode: "host"
     volumes:
       - caddy_data:/data
       - caddy_config:/config
-      - ./Caddyfile:/etc/caddy/Caddyfile # Mount local file for easier editing
+    # Use only the config block, remove the manual volume mount for Caddyfile
+    configs:
+      - source: Caddyfile
+        target: /etc/caddy/Caddyfile
+
+configs:
+  Caddyfile:
+    content: |
+      {
+        local_certs
+        auto_https disable_redirects
+      }
+
+      nof.internal {
+        tls internal
+        reverse_proxy localhost:11000
+      }
+
+      mail.nof.internal {
+        tls internal
+        reverse_proxy localhost:8081
+      }
 
 networks:
   nextcloud-local_default:

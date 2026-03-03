@@ -26,7 +26,6 @@ services:
     ports:
       - "8080:8080"
       - "80:80"     # You can keep this on port 80 now
-      - "11000:11000"
     environment:
       - APACHE_PORT=11000
       - NEXTCLOUD_DATADIR=/nextcloud-data

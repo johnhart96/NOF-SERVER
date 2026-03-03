@@ -27,7 +27,7 @@ services:
       - "8080:8080"
       - "80:80"
     extra_hosts:
-      - "nof.internal:host-gateway" # This tells the container that nof.internal is the host machine
+      - "nof.internal:host-gateway"
     environment:
       - APACHE_PORT=11000
       - NEXTCLOUD_DATADIR=/nextcloud-data
@@ -35,10 +35,9 @@ services:
       - TALK_PORT=3478
       - APACHE_IP_BINDING=127.0.0.1
       - NEXTCLOUD_DOMAIN=nof.internal
-      - AIO_COMMUNITY_CONTAINERS=
-      - NEXTCLOUD_STARTUP_APPS=mail
-      # Added this to help Nextcloud understand its own URL for CLI tasks
       - NEXTCLOUD_OVERWRITECLIURL=https://nof.internal
+    networks:
+      - nextcloud-local_default
   iredmail:
     image: iredmail/openldap:stable
     container_name: iredmail
@@ -78,4 +77,9 @@ services:
 
 networks:
   nextcloud-local_default:
-    external: true
+    driver: bridge
+
+volumes:
+  nextcloud_aio_mastercontainer:
+  caddy_data:
+  caddy_config:

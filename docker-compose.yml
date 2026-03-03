@@ -40,7 +40,7 @@ services:
       # Added this to help Nextcloud understand its own URL for CLI tasks
       - NEXTCLOUD_OVERWRITECLIURL=https://nof.internal
   iredmail:
-    image: iredmail/openldap:stable
+    image: iredmail/mariadb:stable
     container_name: iredmail
     hostname: mail.nof.internal
     domainname: nof.internal
@@ -64,7 +64,7 @@ services:
       - ./iredmail/data/custom:/opt/iredmail/custom
       - ./iredmail/data/ssl:/etc/ssl
     networks:
-      - nextcloud-local_default
+      - default
 
   caddy:
     image: caddy:alpine

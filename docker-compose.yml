@@ -19,7 +19,26 @@ services:
       - TALK_PORT=3478
       - APACHE_IP_BINDING=0.0.0.0
       # -------------------------------------
+  caddy:
+      image: caddy:alpine
+      restart: always
+      container_name: caddy
+      volumes:
+        - caddy_data:/data
+        - caddy_config:/config
+      network_mode: "host"
+      configs:
+        - source: Caddyfile
+          target: /etc/caddy/Caddyfile
 
+  configs:
+    Caddyfile:
+      content: |
+        # Replace 'nof.internal' with your preferred local hostname or IP
+        nextcloud.local:443 {
+          tls internal
+          reverse_proxy localhost:11000
+        }
 volumes:
   nextcloud_aio_mastercontainer:
     name: nextcloud_aio_mastercontainer

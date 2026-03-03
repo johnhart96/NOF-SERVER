@@ -45,7 +45,6 @@ services:
     hostname: mail.nof.internal
     domainname: nof.internal
     restart: always
-    # We keep network_mode: bridge (default) but map ports to the host
     ports:
       - "25:25"
       - "587:587"
@@ -54,7 +53,7 @@ services:
       - "993:993"
       - "110:110"
       - "995:995"
-      - "127.0.0.1:8081:80" # iRedMail web interface (HTTP) mapped to 8081
+      - "127.0.0.1:8081:80" # Web interface for Caddy to proxy
     env_file:
       - ./iredmail/iredmail-docker.conf
     volumes:

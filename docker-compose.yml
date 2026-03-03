@@ -1,0 +1,180 @@
+services:
+  bind9:
+    container_name: bind-dns
+    image: ubuntu/bind9:latest
+    environment:
+      - BIND9_USER=root
+      - TZ=Europe/London
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - ./dns/config:/etc/bind
+      - ./dns/cache:/var/cache/bind
+      - ./dns/records:/var/lib/bind
+    restart: unless-stopped
+
+  iredadmin:
+    container_name: iredadmin
+    hostname: iredadmin
+    domainname: nof.internal
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILD_IREDADMIN: YES
+        USE_IREDADMIN: YES
+        HOSTNAME: nof.internal
+    volumes_from:
+      - mysql
+      - nginx
+
+  iredapd:
+    container_name: iredapd
+    hostname: iredapd
+    domainname: nof.internal
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILD_IREDAPD: YES
+        HOSTNAME: nof.internal
+    expose:
+      - '7777'
+    volumes:
+      - /opt/iredapd
+    volumes_from:
+      - mysql
+      - iredadmin
+
+  amavisd:
+    container_name: amavisd
+    hostname: amavisd
+    domainname: nof.internal
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILD_AMAVISD: YES
+        HOSTNAME: nof.internal
+    expose:
+      - '10024'
+      - '9998'
+    volumes:
+      - /etc/amavis
+    volumes_from:
+      - mysql
+      - postfix
+
+  postfix:
+    container_name: postfix
+    hostname: mail
+    domainname: nof.internal
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILD_POSTFIX: YES
+        HOSTNAME: nof.internal
+    ports:
+      - '7025:25'
+      - '7587:587'
+      - '7465:465'
+    volumes:
+      - /etc/postfix
+      - /var/vmail
+    volumes_from:
+      - mysql
+
+  dovecot:
+    container_name: dovecot
+    hostname: mail
+    domainname: nof.internal
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILD_DOVECOT: YES
+        HOSTNAME: nof.internal
+    ports:
+      - '7110:110'
+      - '7995:995'
+      - '7143:143'
+      - '7993:993'
+    expose:
+      - '2000'
+    volumes:
+      - /etc/dovecot
+    volumes_from:
+      - mysql
+      - postfix
+
+  nginx:
+    container_name: nginx
+    hostname: mail
+    domainname: nof.internal
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILD_NGINX: YES
+        HOSTNAME: nof.internal
+    ports:
+      - '7080:80'
+      - '7443:443'
+    volumes:
+      - /opt/www
+      - /etc/uwsgi
+      - /etc/nginx
+    volumes_from:
+      - mysql
+
+  php:
+    container_name: php
+    hostname: php
+    domainname: nof.internal
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILD_PHP: YES
+        HOSTNAME: nof.internal
+    volumes_from:
+      - mysql
+      - nginx
+
+  ldap:
+    container_name: ldap
+    hostname: ldap
+    domainname: nof.internal
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DOCKER_BUILD_SSL: YES
+        DOCKER_BUILD_BACKEND: YES
+        HOSTNAME: nof.internal
+    expose:
+      - '389'
+      - '636'
+    volumes:
+      - /etc/ssl
+      - /etc/ldap
+    volumes_from:
+      - mysql
+
+  mysql:
+    container_name: mysql
+    hostname: mysql
+    domainname: nof.internal
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: '12345'
+    expose: 
+      - '3306'
+    volumes:
+      - /var/lib/mysql
+      - /var/log
+      - /run/mysqld

@@ -1,0 +1,4 @@
+zone "nof.internal" IN {
+    type: master;
+    file: "/var/lib/bind/nof.internal.zone";
+};

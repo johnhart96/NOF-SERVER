@@ -1,0 +1,17 @@
+$TTL 1h;
+$ORIGIN nof.internal.
+
+
+@         IN      SOA   ns1.nof.internal. hostmaster.nof.internal. (
+                                2003080800 ; serial number
+                                12h        ; refresh
+                                15m        ; update retry
+                                3w         ; expiry
+                                2h         ; minimum
+                                )
+
+; Name Server(s)
+           IN      NS      ns1.nof.internal.
+
+; Host records
+ns1        IN      A       192.168.254.2

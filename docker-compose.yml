@@ -14,6 +14,7 @@ services:
       - ./dns/cache:/var/cache/bind
       - ./dns/records:/var/lib/bind
     restart: unless-stopped
+
   nextcloud-aio-mastercontainer:
     image: ghcr.io/nextcloud-releases/all-in-one:latest
     init: true
@@ -24,15 +25,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
       - "8080:8080" # AIO Interface
-      - "80:80"     # HTTP Port
+      # Port 80 removed from here so Caddy can use it
     environment:
       - APACHE_PORT=11000
       - NEXTCLOUD_DATADIR=/nextcloud-data
-      # --- KEY CHANGES FOR LOCAL/NON-SSL ---
       - SKIP_DOMAIN_VALIDATION=true
       - TALK_PORT=3478
-      - APACHE_IP_BINDING=0.0.0.0
-      # -------------------------------------
+      - APACHE_IP_BINDING=127.0.0.1 # Securely bind to localhost for the proxy
 
   caddy:
     image: caddy:alpine
@@ -49,7 +48,7 @@ services:
 configs:
   Caddyfile:
     content: |
-      # Replace 'nof.internal' with your preferred local hostname or IP
+      # This handles your self-signed cert and local traffic
       nof.internal:443 {
         tls internal
         reverse_proxy localhost:11000
@@ -58,6 +57,5 @@ configs:
 volumes:
   nextcloud_aio_mastercontainer:
     name: nextcloud_aio_mastercontainer
-  # Added missing volume definitions below:
   caddy_data:
   caddy_config:

@@ -20,25 +20,20 @@ services:
     init: true
     restart: always
     container_name: nextcloud-aio-mastercontainer
-    volumes:
-      - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    ports:
-      - "8080:8080"
-      - "80:80"
+    # ... volumes and ports stay the same ...
+    extra_hosts:
+      - "nof.internal:host-gateway" # This tells the container that nof.internal is the host machine
     environment:
       - APACHE_PORT=11000
       - NEXTCLOUD_DATADIR=/nextcloud-data
       - SKIP_DOMAIN_VALIDATION=true
       - TALK_PORT=3478
       - APACHE_IP_BINDING=127.0.0.1
-      # --- FULL AUTOMATION SETTINGS ---
       - NEXTCLOUD_DOMAIN=nof.internal
-      - NEXTCLOUD_ADMIN_USER=admin
-      - NEXTCLOUD_ADMIN_PASSWORD=Happy1234!
       - AIO_COMMUNITY_CONTAINERS=
       - NEXTCLOUD_STARTUP_APPS=
-      # --------------------------------
+      # Added this to help Nextcloud understand its own URL for CLI tasks
+      - NEXTCLOUD_OVERWRITECLIURL=https://nof.internal
 
   caddy:
     image: caddy:alpine

@@ -14,7 +14,6 @@ services:
       - ./dns/cache:/var/cache/bind
       - ./dns/records:/var/lib/bind
     restart: unless-stopped
-
   nextcloud-aio-mastercontainer:
     image: ghcr.io/nextcloud-releases/all-in-one:latest
     init: true
@@ -29,7 +28,7 @@ services:
     extra_hosts:
       - "nof.internal:host-gateway" # This tells the container that nof.internal is the host machine
     environment:
-      - APACHE_PORT=11000
+      - APACHE_PORT=4116
       - NEXTCLOUD_DATADIR=/nextcloud-data
       - SKIP_DOMAIN_VALIDATION=true
       - TALK_PORT=3478
@@ -40,32 +39,7 @@ services:
       # Added this to help Nextcloud understand its own URL for CLI tasks
       - NEXTCLOUD_OVERWRITECLIURL=https://nof.internal
 
-  caddy:
-    image: caddy:alpine
-    restart: always
-    container_name: caddy
-    volumes:
-      - caddy_data:/data
-      - caddy_config:/config
-    network_mode: "host"
-    configs:
-      - source: Caddyfile
-        target: /etc/caddy/Caddyfile
-
-configs:
-  Caddyfile:
-    content: |
-      {
-        auto_https disable_redirects
-      }
-
-      nof.internal:443 {
-        tls internal
-        reverse_proxy localhost:11000
-      }
 
 volumes:
   nextcloud_aio_mastercontainer:
     name: nextcloud_aio_mastercontainer
-  caddy_data:
-  caddy_config:
